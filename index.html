@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+
+    <title>Hello, world!</title>
+  </head>
+  <body class="container">
+    <select class="sel form-control"></select>
+    <table id="tableeeeeee" class="table table-bordered table-striped">
+    	<thead>
+    		<th>Distance < 5</th>
+    		<th>Distance > 5 < 30</th>
+    		<th>Distance > 30 </th>
+    	</thead>
+    	<tbody></tbody>
+    </table>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+		$( '.sel' ).select2({
+			ajax: {
+				url: './api.php',
+				dataType: 'json',
+				processResults: function (data) {
+					return {
+						results: data,
+					}
+				},
+			}
+		});
+		$( '.sel' ).on( "select2:select" , function (e) {
+			var data = $( '.sel' ).select2( 'data' );
+			var id = data[ 0 ][ 'id' ];
+			drawTable( id );
+		});
+		function drawTable ( id ) {
+			$.post( './draw.php' , { id: id } , function( res ) {
+				var resp = JSON.parse( res );
+				var html;
+				for ( var key  in resp ) {
+					if ( resp[ key ][ 'distance' ] < 5 ) {
+						html = `
+							<tr>
+								<td>${resp[ key ][ 'street' ]} ${Math.round(resp[key][ 'distance' ])} km</td>
+								<td></td>
+								<td></td>
+							</tr>
+						`;
+					} else if ( resp[ key ][ 'distance' ] > 5 && resp[ key ][ 'distance' ] < 30 ) {
+						html = `
+							<tr>
+								<td></td>
+								<td>${resp[ key ][ 'street' ]} ${Math.round(resp[key][ 'distance' ])} km</td>
+								<td></td>
+							</tr>
+						`;
+					} else if ( resp[ key ][ 'distance' ] > 30 ) {
+						html = `
+							<tr>
+								<td></td>
+								<td></td>
+								<td>${resp[ key ][ 'street' ]} ${Math.round(resp[key][ 'distance' ])} km</td>
+							</tr>
+						`;
+					} 
+					// console.log( resp[ key ] );
+					$( '#tableeeeeee' ).append( html );
+				}
+			});
+		}
+    </script>
+  </body>
+</html>
